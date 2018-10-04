@@ -1,0 +1,58 @@
+
+import pymongo
+from bson import ObjectId
+
+from Sentence import Sentence
+from Summarize import Summarize
+from Time import Time
+from Keyword import Tf_Idsf
+
+class Analyzer():
+    def __init__(self, mid):
+
+        conn = pymongo.MongoClient('13.209.73.233', 27017)
+        db = conn.get_database('test')
+        self.collection = db.get_collection('meets')
+        self.oid = ObjectId(mid)
+
+        ## get talk
+        result = self.collection.find({"_id": self.oid}, {"talk": True})
+        talk = sorted(result[0]['talk'], key=lambda x:x[1])
+        self.sentences = [Sentence(i,t) for i,t in enumerate(talk)]
+
+    def start(self):
+
+        ## summarize
+        self.sum = Summarize(self.sentences, 2)
+        self.sum.save(self.collection, self.oid)
+
+        ## time
+        self.time = Time(self.sentences, self.sum.clusters)
+        self.time.save(self.collection, self.oid)
+
+        ## keyword
+        self.keyword = Tf_Idsf(self.sentences)
+        self.keyword.save(self.collection, self.oid)
+
+
+if __name__=="__main__":
+
+    an = Analyzer("5bb07e5f5fb2b0661d0f6e8b")
+    an.start()
+
+    ## print for check
+    for i,c in enumerate(an.sum.clusters):
+        print("cluster{}".format(i+1))
+        for s in c.sentences:
+            print(s.text)
+    for i,s in enumerate(an.sum.summaries):
+        print("cluster_summarize{}".format(i + 1))
+        for d in s:
+            print(d)
+
+    print("all", an.time.all)
+    print("per_talker", an.time.per_talker)
+    print("per_cluster", an.time.per_cluster)
+
+    print("keword", an.keyword.get_result())
+
