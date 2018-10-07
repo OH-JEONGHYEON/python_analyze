@@ -11,8 +11,11 @@ class AnalyzeMeeting(Resource):
         mid = request.args.get('mid')
         if mid:
             an = Analyzer(mid)
-            an.start()
-            return {'status': 'success'}
+            if an.error:
+                return {'message': 'cannot found talk'}
+            else:
+                an.start()
+                return {'status': 'success'}
         else:
             return {'message': 'cannot found mid'}
 

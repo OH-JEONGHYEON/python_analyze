@@ -15,19 +15,18 @@ class Time:
         for sen in self.sentences:
             all += sen.end-sen.start
 
-        return str(datetime.timedelta(milliseconds=all))
+        return all
 
     def time_per_talker(self):
-        per_talker = {}
+        per_talker_dict = {}
         for sen in self.sentences:
-            if sen.talker not in per_talker:
-                per_talker[sen.talker] = 0
-            per_talker[sen.talker] += sen.end-sen.start
+            if sen.talker not in per_talker_dict:
+                per_talker_dict[sen.talker] = 0
+            per_talker_dict[sen.talker] += sen.end-sen.start
 
-        for k in per_talker.keys():
-            per_talker[k] = str(datetime.timedelta(milliseconds=per_talker[k]))
+        per_talker_list = [[k,v] for k,v in per_talker_dict.items()]
 
-        return per_talker
+        return per_talker_list
 
     def time_per_cluster(self):
         per_cluster = []
@@ -35,7 +34,7 @@ class Time:
             time = 0
             for sen in c.sentences:
                 time += sen.end - sen.start
-            per_cluster.append(str(datetime.timedelta(milliseconds=time)))
+            per_cluster.append(time)
         return per_cluster
 
     def save(self, coll, oid):

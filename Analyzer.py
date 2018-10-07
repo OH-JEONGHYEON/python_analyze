@@ -16,9 +16,13 @@ class Analyzer():
         self.oid = ObjectId(mid)
 
         ## get talk
-        result = self.collection.find({"_id": self.oid}, {"talk": True})
-        talk = sorted(result[0]['talk'], key=lambda x:x[1])
-        self.sentences = [Sentence(i,t) for i,t in enumerate(talk)]
+        result = self.collection.find({"_id": self.oid}, {"_id":False, "talk":True})
+        if result[0]:
+            talk = sorted(result[0]['talk'], key=lambda x:x[1])
+            self.sentences = [Sentence(i,t) for i,t in enumerate(talk)]
+            self.error = False
+        else:
+            self.error = True
 
     def start(self):
 
@@ -37,22 +41,24 @@ class Analyzer():
 
 if __name__=="__main__":
 
-    an = Analyzer("5bb07e5f5fb2b0661d0f6e8b")
-    an.start()
+    an = Analyzer("5bb07e5f5fb2b0661d0f6e8b") # talk o
+    # an = Analyzer("5bb4ecadec7da27457afee6e") # talk x
+    if not an.error:
+        an.start()
 
-    ## print for check
-    for i,c in enumerate(an.sum.clusters):
-        print("cluster{}".format(i+1))
-        for s in c.sentences:
-            print(s.text)
-    for i,s in enumerate(an.sum.summaries):
-        print("cluster_summarize{}".format(i + 1))
-        for d in s:
-            print(d)
+        ## print for check
+        for i,c in enumerate(an.sum.clusters):
+            print("cluster{}".format(i+1))
+            for s in c.sentences:
+                print(s.text)
+        for i,s in enumerate(an.sum.summaries):
+            print("cluster_summarize{}".format(i + 1))
+            for d in s:
+                print(d)
 
-    print("all", an.time.all)
-    print("per_talker", an.time.per_talker)
-    print("per_cluster", an.time.per_cluster)
+        print("all", an.time.all)
+        print("per_talker", an.time.per_talker)
+        print("per_cluster", an.time.per_cluster)
 
-    print("keword", an.keyword.get_result())
+        print("keword", an.keyword.get_result())
 
