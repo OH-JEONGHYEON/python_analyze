@@ -41,11 +41,18 @@ class Analyzer():
 
         ## relation
         from gensim.models import Word2Vec
-        data = [list(map(str, s.tokens)) for s in self.sum.sentences]
+        data = []
+        for s in self.sentences:
+            li = []
+            for t in s.tokens:
+                if t.tag == "Noun":
+                    li.append(t.word)
+            data.append(li)
         print(data)
 
-        model = Word2Vec(data)
+        model = Word2Vec(data, iter=1000, sample=0.01)
         model.save("word2vec.model")
+        print(model.wv.most_similar("샤오미"))
 
         # 트레이닝된 word2vec 모델명, tensorboard file path
         visualize = Visualize("./word2vec.model", "./test")
