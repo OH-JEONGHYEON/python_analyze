@@ -96,9 +96,9 @@ if __name__ == '__main__' :
         data.append(li)
     print(data)
 
-    model = Word2Vec(data)
+    model = Word2Vec(data, iter=1000, sample=0.01)
     model.save("word2vec.model")
-    print(model.wv.most_similar("우리"))
+    print(model.wv.most_similar("동물원"))
 
     # 트레이닝된 word2vec 모델명, tensorboard file path
     visualize = Visualize("./word2vec.model","./test")
