@@ -6,6 +6,7 @@ from Sentence import Sentence
 from Summarize import Summarize
 from Time import Time
 from Keyword import Tf_Idsf
+from Relation import Visualize
 
 class Analyzer():
     def __init__(self, mid):
@@ -38,11 +39,25 @@ class Analyzer():
         self.keyword = Tf_Idsf(self.sentences)
         self.keyword.save(self.collection, self.oid)
 
+        ## relation
+        from gensim.models import Word2Vec
+        data = [list(map(str, s.tokens)) for s in self.sum.sentences]
+        print(data)
+
+        model = Word2Vec(data)
+        model.save("word2vec.model")
+
+        # 트레이닝된 word2vec 모델명, tensorboard file path
+        visualize = Visualize("./word2vec.model", "./test")
+        # 텐서보드 실행
+        visualize.run_tensorboard()
+
 
 if __name__=="__main__":
 
-    an = Analyzer("5bb07e5f5fb2b0661d0f6e8b") # talk o
+    # an = Analyzer("5bb07e5f5fb2b0661d0f6e8b") # talk o
     # an = Analyzer("5bb4ecadec7da27457afee6e") # talk x
+    an = Analyzer("5bc356a10441a5656052ae81")
     if not an.error:
         an.start()
 

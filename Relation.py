@@ -82,10 +82,18 @@ if __name__ == '__main__' :
     for line in rdr:
         talk.append(list(line))
     f.close()
+    talk[0][0] = 1
 
     sentences = [Sentence(i, t) for i, t in enumerate(talk)]
     sum = Summarize(sentences, 2)
-    data = [list(map(str, s.tokens)) for s in sentences]
+    # data = [list(map(str, s.tokens)) for s in sentences]
+    data = []
+    for s in sentences:
+        li = []
+        for t in s.tokens:
+            if t.tag == "Noun":
+                li.append(t.word)
+        data.append(li)
     print(data)
 
     model = Word2Vec(data)

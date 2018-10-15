@@ -4,6 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from lexrankr import LexRank
 
+
 class Token(object):
     def __init__(self, index, word, tag):
         self.index = index
@@ -49,6 +50,7 @@ class Cluster(object):
 class Summarize():
 
     def __init__(self, sentences, subject=1):
+
         self.sentences = sentences
         self.subject = subject
         self.text2token(self.sentences)
@@ -153,6 +155,20 @@ class Summarize():
 
         return similarity
 
+    def matchTalker(self):
+        summarize = []
+        idx = 0
+        for c in self.summaries:
+            t = []
+            for s in c:
+                for i in range(idx, len(self.sentences)):
+                    if s == self.sentences[i].text:
+                        t.append([self.sentences[i].talker, self.sentences[i].text])
+                        idx = i
+                        break
+            summarize.append(t)
+        return summarize
+
     def save(self, coll, oid):
         ## cluster
         data = [c.sen_with_talker() for c in self.clusters]
@@ -171,7 +187,7 @@ class Summarize():
         ## summarize
         coll.update(
             { "_id": oid },
-            { "$set": {"summarize": self.summaries}},
+            { "$set": {"summarize": self.matchTalker()}},
             upsert=True
         )
 
@@ -196,3 +212,4 @@ if __name__=="__main__":
             print(j, s.text)
 
     print(sum.summaries)
+    print(sum.matchTalker())

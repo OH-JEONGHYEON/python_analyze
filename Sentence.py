@@ -1,9 +1,9 @@
 class Sentence(object):
     def __init__(self, index, talk):
         self.index = index
-        self.talker = str(talk[0])
-        self.start = talk[1]
-        self.end = talk[2]
+        self.talker = str(int(talk[0]))
+        self.start = int(talk[1])
+        self.end = int(talk[2])
         self.text = talk[3]
         ## self.tokens
 
