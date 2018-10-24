@@ -63,6 +63,11 @@ class Summarize():
         ## all sentences = 1 document
         x = self.tfidfv.fit_transform(self.token4tf)
         self.useful = self.filter_sentences(self.tfidfv.get_feature_names())
+        self.sum_per_talker = {}
+        for sen in self.sentences:
+            if sen.talker not in self.sum_per_talker:
+                self.sum_per_talker[sen.talker] = []
+        self.sum_cluster()
 
 
     def sum_cluster(self):
@@ -72,19 +77,20 @@ class Summarize():
         for c in self.clusters:
             lexrank.summarize(c.sen2txt())
             self.summaries.append(lexrank.probe(0.1))
+            self.sum_talker(c) # use current cluster to summarize per talker
 
-    def sum_talker(self):
+    def sum_talker(self, cluster):
+
         per_talker_dict = {}
-        for sen in self.sentences:
+        lexrank = LexRank(clustering=None)
+        for sen in cluster.sentences:
             if sen.talker not in per_talker_dict:
                 per_talker_dict[sen.talker] = ""
             per_talker_dict[sen.talker] += sen.text+"\n"
 
-        self.sum_per_talker = {}
-        lexrank = LexRank(clustering=None)
         for k,v in per_talker_dict.items():
             lexrank.summarize(v)
-            self.sum_per_talker[k] = lexrank.probe(1)
+            self.sum_per_talker[k].append(lexrank.probe(1))
 
 
     def text2token(self, sentences):
@@ -241,7 +247,5 @@ if __name__=="__main__":
     # print(sum.summaries)
     # print(sum.matchTalker())
 
-
-    sum.sum_talker()
     for k,v in sum.sum_per_talker.items():
         print(k,v)

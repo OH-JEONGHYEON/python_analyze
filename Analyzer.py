@@ -30,8 +30,6 @@ class Analyzer():
 
         ## summarize
         self.sum = Summarize(self.sentences, 2)
-        self.sum.sum_cluster()
-        self.sum.sum_talker()
         self.sum.save(self.collection, self.oid)
 
         ## time
