@@ -6,7 +6,7 @@ from Sentence import Sentence
 from Summarize import Summarize
 from Time import Time
 from Keyword import Tf_Idsf
-from Relation import Visualize
+from Relation import Relation
 
 class Analyzer():
     def __init__(self, mid):
@@ -14,7 +14,8 @@ class Analyzer():
         conn = pymongo.MongoClient('13.209.73.233', 27017)
         db = conn.get_database('test')
         self.collection = db.get_collection('meets')
-        self.oid = ObjectId(mid)
+        self.mid = mid
+        self.oid = ObjectId(self.mid)
 
         ## get talk
         result = self.collection.find({"_id": self.oid}, {"_id":False, "talk":True})
@@ -29,6 +30,8 @@ class Analyzer():
 
         ## summarize
         self.sum = Summarize(self.sentences, 2)
+        self.sum.sum_cluster()
+        self.sum.sum_talker()
         self.sum.save(self.collection, self.oid)
 
         ## time
@@ -40,25 +43,9 @@ class Analyzer():
         self.keyword.save(self.collection, self.oid)
 
         ## relation
-        from gensim.models import Word2Vec
-        data = []
-        for s in self.sentences:
-            li = []
-            for t in s.tokens:
-                if t.tag == "Noun":
-                    li.append(t.word)
-            data.append(li)
-        print(data)
 
-        model = Word2Vec(data, iter=1000, sample=0.01)
-        model.save("word2vec.model")
-        print(model.wv.most_similar("샤오미"))
-
-        # 트레이닝된 word2vec 모델명, tensorboard file path
-        visualize = Visualize("./word2vec.model", "./test")
-        # 텐서보드 실행
-        visualize.run_tensorboard()
-
+        self.relation = Relation(self.sentences, self.mid)
+        self.relation.save(self.collection, self.oid)
 
 if __name__=="__main__":
 

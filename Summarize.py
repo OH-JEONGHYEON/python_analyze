@@ -63,12 +63,28 @@ class Summarize():
         ## all sentences = 1 document
         x = self.tfidfv.fit_transform(self.token4tf)
         self.useful = self.filter_sentences(self.tfidfv.get_feature_names())
+
+
+    def sum_cluster(self):
         self.clusters = self.clustering()
         lexrank = LexRank(clustering=None)
         self.summaries = []
         for c in self.clusters:
             lexrank.summarize(c.sen2txt())
-            self.summaries.append(lexrank.probe())
+            self.summaries.append(lexrank.probe(0.1))
+
+    def sum_talker(self):
+        per_talker_dict = {}
+        for sen in self.sentences:
+            if sen.talker not in per_talker_dict:
+                per_talker_dict[sen.talker] = ""
+            per_talker_dict[sen.talker] += sen.text+"\n"
+
+        self.sum_per_talker = {}
+        lexrank = LexRank(clustering=None)
+        for k,v in per_talker_dict.items():
+            lexrank.summarize(v)
+            self.sum_per_talker[k] = lexrank.probe(1)
 
 
     def text2token(self, sentences):
@@ -184,10 +200,17 @@ class Summarize():
             upsert=True
         )
 
-        ## summarize
+        ## summarize per cluster
         coll.update(
             { "_id": oid },
             { "$set": {"summarize": self.matchTalker()}},
+            upsert=True
+        )
+
+        ## summarize per talker
+        coll.update(
+            {"_id": oid},
+            {"$set": {"sum_per_talk": self.sum_per_talker}},
             upsert=True
         )
 
@@ -202,14 +225,23 @@ if __name__=="__main__":
     for line in rdr:
         talk.append(list(line))
     f.close()
+    talk[0][0] = 1
 
     sentences = [Sentence(i,t) for i,t in enumerate(talk)]
 
     sum = Summarize(sentences,2)
-    for i,c in enumerate(sum.clusters):
-        print("cluster{}".format(i))
-        for j,s in enumerate(c.sentences):
-            print(j, s.text)
 
-    print(sum.summaries)
-    print(sum.matchTalker())
+    # #clustering and summarize
+    # sum.sum_cluster()
+    # for i,c in enumerate(sum.clusters):
+    #     print("cluster{}".format(i))
+    #     for j,s in enumerate(c.sentences):
+    #         print(j, s.text)
+    #
+    # print(sum.summaries)
+    # print(sum.matchTalker())
+
+
+    sum.sum_talker()
+    for k,v in sum.sum_per_talker.items():
+        print(k,v)
