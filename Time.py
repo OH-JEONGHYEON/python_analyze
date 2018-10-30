@@ -24,7 +24,7 @@ class Time:
                 per_talker_dict[sen.talker] = 0
             per_talker_dict[sen.talker] += sen.end-sen.start
 
-        per_talker_list = [[k,v] for k,v in per_talker_dict.items()]
+        per_talker_list = [[k,v/1000] for k,v in per_talker_dict.items()]
 
         return per_talker_list
 
@@ -35,6 +35,7 @@ class Time:
             for sen in c.sentences:
                 time += sen.end - sen.start
             per_cluster.append(time)
+
         return per_cluster
 
     def save(self, coll, oid):

@@ -52,12 +52,12 @@ class Tf_Idsf:
         okt = Okt()
         want = ['Noun']
         stopword = ['어어', '넷', '만', '것', '타', '최', '태', '개', '홈', '선', '끼', '각', '번', '하다', '음', '화', '이다', ' ', '다',
-                    '더', '포', '제', '저', '여기', '고', '씬', '첨', '난', '면', '으루', '네']
+                    '더', '포', '제', '저', '여기', '고', '씬', '첨', '난', '면', '으루', '네', '정보', '생각', '시간']
         pos = []
         for sen in self.sentences:
             token = []
             for t in okt.pos(sen.text, norm=True, stem=True):
-                if (t[1] in want) and (t[0] not in stopword) and (len(t[0]) > 2):
+                if (t[1] in want) and (t[0] not in stopword) and (len(t[0]) > 1):
                     token.append(t[0])
 
             pos.extend(token)

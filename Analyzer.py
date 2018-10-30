@@ -18,10 +18,12 @@ class Analyzer():
         self.oid = ObjectId(self.mid)
 
         ## get talk
-        result = self.collection.find({"_id": self.oid}, {"_id":False, "talk":True})
+        result = self.collection.find({"_id": self.oid}, {"_id":False, "talk":True, "num_cluster":True})
         if result[0]:
             talk = sorted(result[0]['talk'], key=lambda x:x[1])
             self.sentences = [Sentence(i,t) for i,t in enumerate(talk)]
+            self.num_cluster = result[0]['num_cluster']
+            print(self.num_cluster)
             self.error = False
         else:
             self.error = True
@@ -29,7 +31,7 @@ class Analyzer():
     def start(self):
 
         ## summarize
-        self.sum = Summarize(self.sentences, 2)
+        self.sum = Summarize(self.sentences, self.num_cluster)
         self.sum.save(self.collection, self.oid)
 
         ## time
@@ -47,9 +49,8 @@ class Analyzer():
 
 if __name__=="__main__":
 
-    # an = Analyzer("5bb07e5f5fb2b0661d0f6e8b") # talk o
-    # an = Analyzer("5bb4ecadec7da27457afee6e") # talk x
-    an = Analyzer("5bc356a10441a5656052ae81")
+    an = Analyzer("5bd83ae586c8cd5b4b355db6")
+    # an = Analyzer("5bd0652dfbd6df56f060a70d")
     if not an.error:
         an.start()
 

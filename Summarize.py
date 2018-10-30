@@ -76,7 +76,9 @@ class Summarize():
         self.summaries = []
         for c in self.clusters:
             lexrank.summarize(c.sen2txt())
-            self.summaries.append(lexrank.probe(0.1))
+            for i, s in enumerate(c.sentences):
+                print(i, s.text)
+            self.summaries.append(lexrank.probe(3))
             self.sum_talker(c) # use current cluster to summarize per talker
 
     def sum_talker(self, cluster):
@@ -96,11 +98,11 @@ class Summarize():
     def text2token(self, sentences):
         for sen in sentences:
             okt = Okt()
-            stopwords=[]
-            useful_tags=['Noun', 'Verb', 'Adjective', 'Adverb', 'Alpha', 'Number']
+            stopwords=['있다', '이다', '하다']
+            useful_tags=['Noun', 'Verb', 'Adjective', 'Alpha', 'Number']
             tokens = []
             for word, tag in okt.pos(sen.text, norm=True, stem=True):
-                if(word in stopwords or tag not in useful_tags):
+                if(word in stopwords or tag not in useful_tags or len(word)<2):
                     continue
                 tokens.append(Token(sen.index, word, tag))
             sen.tokens = tokens
@@ -130,7 +132,8 @@ class Summarize():
         cnt = len(similarity)//5
         part = [similarity[i*cnt:(i+1)*cnt] for i in range(num_part+1) if i*cnt<len(similarity)]
         min = [sorted(p, key=lambda x:x[1])[0] for p in part]
-        boundary_list = sorted(min, key=lambda x:x[1])[:self.subject-1]
+        boundary_list_pre = sorted(min, key=lambda x:x[1])[:self.subject-1]
+        boundary_list = sorted(boundary_list_pre, key=lambda x:x[0])
 
         start=0
         tmp_clusters=[]
@@ -142,7 +145,7 @@ class Summarize():
             pos = boundary.index(str(token))
             if(pos<len(boundary)//2):
                 tmp_clusters.append(self.sentences[start:idx+1])
-                start = idx+1
+                start=idx+1
             else:
                 tmp_clusters.append(self.sentences[start:idx])
                 start=idx
@@ -197,12 +200,6 @@ class Summarize():
         coll.update(
             {"_id": oid},
             {"$set": {"cluster": data}},
-            upsert=True
-        )
-
-        coll.update(
-            {"_id": oid},
-            {"$set": {"num_cluster": len(self.clusters)}},
             upsert=True
         )
 
