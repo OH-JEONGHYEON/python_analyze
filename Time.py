@@ -24,7 +24,7 @@ class Time:
                 per_talker_dict[sen.talker] = 0
             per_talker_dict[sen.talker] += sen.end-sen.start
 
-        per_talker_list = [[k,v/1000] for k,v in per_talker_dict.items()]
+        per_talker_list = [[k,v] for k,v in per_talker_dict.items()]
 
         return per_talker_list
 

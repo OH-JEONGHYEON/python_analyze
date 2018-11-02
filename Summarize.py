@@ -78,7 +78,10 @@ class Summarize():
             lexrank.summarize(c.sen2txt())
             for i, s in enumerate(c.sentences):
                 print(i, s.text)
-            self.summaries.append(lexrank.probe(3))
+            if len(c.sentences)<20:
+                self.summaries.append(lexrank.probe(0.3))
+            else:
+                self.summaries.append(lexrank.probe(0.2))
             self.sum_talker(c) # use current cluster to summarize per talker
 
     def sum_talker(self, cluster):
