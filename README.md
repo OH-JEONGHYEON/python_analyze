@@ -13,7 +13,15 @@ Flask(python 3.6), mongodb, tensorflow(tensorboard)
 
 ### 실행  
 
-`$ python api.py`  
+`$ python api.py`
+
+### INPUT
+회의 내 각 개인별 음성의 스크립트
+
+### OUTPUT
+1. 회의 핵심키워드
+2. 단어 간 의미 관계 그래프
+3. 전체/주제별/사용자별 회의 요약
 
 
 ## 기능
@@ -37,8 +45,11 @@ Word2Vec은 동시에 등장하는 단어 관계를 학습하는 단어 벡터�
 3. 블록들 사이의 코사인 유사도를 계산하고, 유사도가 현저히 낮은 곳을 주제가 나뉘는 경계로 판단.
 <img src="https://raw.githubusercontent.com/OH-JEONGHYEON/python_analyze/master/clustering.png" />
 
-### 핵심문장 분석 - TEXTRANK 알고리즘
+### 회의 요약 (핵심문장) - TEXTRANK 알고리즘
 구글의 검색 알고리즘 PAGERANK 알고리즘을 텍스트 분석에 맞춰 변형시킨 알고리즘.  
 (PAGERANK 알고리즘은 다른 사이트가 해당 사이트를 많이 링크(인용)하면 높은 가치를 갖는다고 판단.)  
 PAGERANK의 사이트 간 링크 개념을 문장 간 유사도 개념으로 바꾸어 적용.
+
+### 그 외
+발언자별, 주제별 회의 시간 정보
 
